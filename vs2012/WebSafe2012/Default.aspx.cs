@@ -11,7 +11,14 @@ namespace WebSafe2012
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            if (!Page.IsPostBack)
+            {
+                ProductDropDown.DataSource = new[] { "Milk", "Chocolate", "Cookies" };
+                ProductDropDown.DataBind();
+            }
 
+            MyButton.Text = "<script>alert('Button alert!!');</script>";
+            MyLabel.Text = "<script>alert('Label alert!!');</script>";
         }
     }
 }

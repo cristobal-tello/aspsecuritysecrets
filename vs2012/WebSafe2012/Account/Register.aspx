@@ -27,7 +27,7 @@
                         <ol>
                             <li>
                                 <asp:Label runat="server" AssociatedControlID="UserName">User name</asp:Label>
-                                <asp:TextBox runat="server" ID="UserName" />
+                                <asp:TextBox runat="server" ID="UserName" ValidateRequestMode="Disabled" />
                                 <asp:RequiredFieldValidator runat="server" ControlToValidate="UserName"
                                     CssClass="field-validation-error" ErrorMessage="The user name field is required." />
                             </li>

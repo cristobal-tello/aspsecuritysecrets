@@ -123,3 +123,71 @@ select * from dbo.UsersInRoles
 select * from dbo.Memberships
 
 Take a look how records are link.
+
+17) Viewstate
+Create this simple DropDown in a default page
+
+<asp:DropDownList runat="server" ID="ProductDropDown" AutoPostBack="True" />
+
+Also, in Page_Load:
+
+if(!Page.IsPostBack)
+{
+ProductDropDown.DataSource = new [] {"Milk", "Chocolate", "Cookies"};
+ProductDropDown.DataBind();
+}
+
+Run app and do some clicks over Dropdown, selecting an item.
+
+How list is not clear if code only Dropdown one time? Due ViewState, because is enable by default in DropDown control.
+Take a look the Original Source of Default page (Ctrl+U) under Google Chrome. 
+You will see <input type="hidden" name="__VIEWSTATE" with as BASE64 string
+
+On Web.config, go to <pages>, add enableViewStateMac="true"
+Luckly, is True by default, so __VIEWSTATE will be check  on the server and if it is modified, don't be proceesed.
+In very very strange cases set this flag to False. 
+
+17.1) Copy the value of the __VIEWSTATE, go to http://viewstatedecoder.azurewebsites.net/, paste it and take a look if it can decrypt.
+
+17.2) Cross site scripting
+
+Be careful some control don't encode text values:
+
+On.aspx:
+<asp:Button runat="server" ID="MyButton" />
+<asp:Label runat="server" ID="MyLabel" />
+
+On .cs:
+MyButton.Text = "<script>alert('Button alert!!');</script>";
+MyLabel.Text = "<script>alert('Label alert!!');</script>";		// Opsss!!!
+
+You need check the documentation of the control to prevent this issue.
+
+17.3) XSRF attacks
+Luckly, at least from VS2012 (I don't know if VS2010), when you create a new webforms site from template, XSRF attacks are mitigated.
+Take a look code on Site.Master.cs
+
+17.4) XSS on Login
+In you try to put some invalid user when you try to register a new user like this:
+
+On User Name, type something like this:
+<script>alert('Opsss!!');</script>
+
+On email and password fields type a valid value.
+
+Try to register and you will get HttpRequestValidationException. This is great.
+
+But if you want disallow ValidateRequest, go to Login field, in this case on Register.aspx
+on <asp:TextBox runat="server" ID="UserName" />
+
+Add ValidateRequestMode="Disabled"
+
+<asp:TextBox runat="server" ID="UserName" ValidateRequestMode="Disabled" />
+
+And try again, you will note xss now is allow, but the problem is when template render index page again
+using the text that you placed in the textbox. So, the REAL problem is on the label. 
+Of course, ValidateRequestMode must be Enabled, but be careful with this behaviour.
+
+
+
+
